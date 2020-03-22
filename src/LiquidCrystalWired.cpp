@@ -1,0 +1,233 @@
+/*
+ * Copyright (C) 2020 Hendrik van Essen
+ *
+ * This file is subject to the terms and conditions of the GNU Lesser
+ * General Public License v2.1. See the file LICENSE in the top level
+ * directory for more details.
+ */
+
+#include "Arduino.h"
+
+#include "LiquidCrystalWired.h"
+
+/******************************* PUBLIC METHODS *******************************/
+LiquidCrystalWired::LiquidCrystalWired(
+        uint8_t rowCount, uint8_t colCount, FontSize fontSize, BitMode bitMode) {
+
+    _rowCount = rowCount;
+    _colCount = colCount;
+    _fontSize = fontSize;
+    _bitMode = bitMode;
+}
+
+void LiquidCrystalWired::begin(uint16_t deviceAddress, TwoWire *wire) {
+
+    uint8_t _functionSet = 0;
+
+    _deviceAddres = deviceAddress;
+
+    _wire = wire;
+    _wire->begin();
+
+    // configure bit mode
+    if (_bitMode == BITMODE_8_BIT) {
+        _functionSet |= (1 << BIT_FUNCTION_SET_BITMODE);
+    }
+
+    // configure line count
+    if (_rowCount >= 2) {
+        _functionSet |= (1 << BIT_FUNCTION_SET_LINECOUNT);
+    }
+
+    // configure character size
+    if (_fontSize == FONT_SIZE_5x10) {
+        _functionSet |= (1 << BIT_FUNCTION_SET_FONTSIZE);
+    }
+
+    // SEE PAGE 45/46 FOR INITIALIZATION SPECIFICATION!
+    // according to datasheet, we need at least 40ms after power rises above 2.7V
+    // before sending commands. Arduino can turn on way before 4.5V so we'll wait 50 ms
+    delay(50);
+
+    // this is according to the hitachi HD44780 datasheet
+    // page 45 figure 23
+
+    // Send function set command sequence
+    command(CMD_FUNCTION_SET | _functionSet);
+    delay(5);
+
+    // second try
+    command(CMD_FUNCTION_SET | _functionSet);
+    delay(5);
+
+    // third go
+    command(CMD_FUNCTION_SET | _functionSet);
+
+    // set defaults
+    turnOn();
+    clear();
+    setTextInsertionMode(LEFT_TO_RIGHT);
+}
+
+void LiquidCrystalWired::turnOn() {
+
+    _currDisplayControl |= (1 << BIT_DISPLAY_CONTROL_DISPLAY);
+    command(CMD_DISPLAY_CONTROL | _currDisplayControl);
+}
+
+void LiquidCrystalWired::turnOff() {
+
+    _currDisplayControl &= ~(1 << BIT_DISPLAY_CONTROL_DISPLAY);
+    command(CMD_DISPLAY_CONTROL | _currDisplayControl);
+}
+
+void LiquidCrystalWired::clear() {
+
+    command(CMD_CLEAR_DISPLAY);
+
+    // above command takes a long time!
+    delayMicroseconds(2000);
+}
+
+void LiquidCrystalWired::returnHome() {
+
+    command(CMD_RETURN_HOME);
+
+    // above command takes a long time!
+    delayMicroseconds(2000);
+}
+
+void LiquidCrystalWired::setAutoScrollEnabled(bool enabled) {
+
+    if (enabled) {
+        _currEntryModeSet |= (1 << BIT_ENTRY_MODE_AUTOINCREMENT);
+    }
+    else {
+        _currEntryModeSet &= ~(1 << BIT_ENTRY_MODE_AUTOINCREMENT);
+    }
+
+    command(CMD_ENTRY_MODE_SET | _currEntryModeSet);
+}
+
+void LiquidCrystalWired::setCursorBlinkingEnabled(bool enabled) {
+
+    if (enabled) {
+        _currDisplayControl |= (1 << BIT_DISPLAY_CONTROL_CURSOR_BLINKING);
+    }
+    else {
+        _currDisplayControl &= ~(1 << BIT_DISPLAY_CONTROL_CURSOR_BLINKING);
+    }
+
+    command(CMD_DISPLAY_CONTROL | _currDisplayControl);
+}
+
+void LiquidCrystalWired::setCursorVisible(bool visible) {
+
+    if (visible) {
+        _currDisplayControl |= (1 << BIT_DISPLAY_CONTROL_CURSOR);
+    }
+    else {
+        _currDisplayControl &= ~(1 << BIT_DISPLAY_CONTROL_CURSOR);
+    }
+
+    command(CMD_DISPLAY_CONTROL | _currDisplayControl);
+}
+
+void LiquidCrystalWired::setCursorPosition(uint8_t row, uint8_t col) {
+
+    col = ((row == 0) ? (col | 0x80) : (col | 0xc0));
+    uint8_t data[3] = {0x80, col};
+
+    deviceWrite(data, 2);
+}
+
+void LiquidCrystalWired::setTextInsertionMode(TextInsertionMode mode) {
+
+    if (mode == RIGHT_TO_LEFT) {
+        _currEntryModeSet &= ~(1 << BIT_ENTRY_MODE_INCREMENT);
+    }
+    else {
+        _currEntryModeSet |= (1 << BIT_ENTRY_MODE_INCREMENT);
+    }
+
+    command(CMD_ENTRY_MODE_SET | _currEntryModeSet);
+}
+
+void LiquidCrystalWired::moveCursorLeft() {
+
+    uint8_t cmd = CMD_CURSOR_DISPLAY_SHIFT;
+    cmd &= ~(1 << BIT_CURSOR_DISPLAY_SHIFT_DIRECTION);
+
+    command(cmd);
+}
+
+void LiquidCrystalWired::moveCursorRight() {
+
+    uint8_t cmd = CMD_CURSOR_DISPLAY_SHIFT;
+    cmd |= (1 << BIT_CURSOR_DISPLAY_SHIFT_DIRECTION);
+
+    command(cmd);
+}
+
+void LiquidCrystalWired::scrollDisplayLeft() {
+
+    uint8_t cmd = CMD_CURSOR_DISPLAY_SHIFT;
+    cmd |= (1 << BIT_CURSOR_DISPLAY_SHIFT_SELECTION);
+    cmd &= ~(1 << BIT_CURSOR_DISPLAY_SHIFT_DIRECTION);
+
+    command(cmd);
+}
+
+void LiquidCrystalWired::scrollDisplayRight() {
+
+    uint8_t cmd = CMD_CURSOR_DISPLAY_SHIFT;
+    cmd |= (1 << BIT_CURSOR_DISPLAY_SHIFT_SELECTION);
+    cmd |= (1 << BIT_CURSOR_DISPLAY_SHIFT_DIRECTION);
+
+    command(cmd);
+}
+
+void LiquidCrystalWired::setCustomSymbol(
+        CustomSymbol customSymbol, uint8_t charmap[]) {
+
+    uint8_t location = customSymbol;
+    command(CMD_SET_CGRAM_ADDR | (location << 3));
+
+    uint8_t data[9];
+    data[0] = 0x40;
+    for (int i = 0; i < 8; i++) {
+        data[i + 1] = charmap[i];
+    }
+    deviceWrite(data, 9);
+}
+
+void LiquidCrystalWired::printCustomSymbol(CustomSymbol customSymbol) {
+    write((byte) customSymbol);
+}
+
+inline size_t LiquidCrystalWired::write(uint8_t value) {
+
+    uint8_t data[3] = {0x40, value};
+    deviceWrite(data, 2);
+
+    // assume success
+    return 1;
+}
+
+/****************************** PRIVATE METHODS *******************************/
+void LiquidCrystalWired::deviceWrite(uint8_t *data, uint8_t len) {
+
+    Wire.beginTransmission(_deviceAddres);
+
+    for (int i = 0; i < len; i++) {
+        Wire.write(data[i]);
+        delay(5);
+    }
+
+    Wire.endTransmission();
+}
+
+inline void LiquidCrystalWired::command(uint8_t value) {
+    uint8_t data[3] = {0x80, value};
+    deviceWrite(data, 2);
+}
