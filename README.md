@@ -164,6 +164,42 @@ like the API of them. In fact it was one of the reasons to write my own version.
      * @param customSymbol  Key of the custom symbol to be printed
      * */
     void printCustomSymbol(CustomSymbol customSymbol);
+
+    /*
+     * Enable or disable the progress bar. When enabled, the last five custom
+     * symbols are reserved to display the progress bar (CUSTOM_SYMBOL_4 to
+     * CUSTOM_SYMBOL_8) and can't be used. Assignments via setCustomSymbol() to
+     * these keys will be ignored. The given line will be reserved completely
+     * for the progress bar. Any text written to that line will be overwritten
+     * by the progress bar on an update.
+     *
+     * NOTE: Auto scroll will be disabled and the display will be scrolled to
+     * its original position. Don't use scrolling when using the
+     * progressbar, otherwise it won't display correctly.
+     *
+     * NOTE: Text insertion mode will be set to LEFT_TO_RIGHT.
+     *
+     * @param enabled   Enable or disable
+     * */
+    void setProgressBarEnabled(bool enabled);
+
+    /*
+     * Set the row for displaying the progress bar. Defaults to the last row,
+     * according to the given row count in the constructor.
+     *
+     * @param row    Row where the progress bar is displayed
+     * */
+    void setProgressBarRow(uint8_t row);
+
+    /*
+     * Set the progress of the progress bar and draw the update.
+     *
+     * NOTE: This function changes the cursor position. You must use
+     * setCursorPosition to return to your desired cursor position.
+     *
+     * @param progress  Progress in percentage (0.0 to 100.0)
+     * */
+    void setProgress(float progress);
 ```
 
 There is an application called `ApiExample` in `examples`, where you can have a

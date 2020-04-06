@@ -295,6 +295,42 @@ public:
     void printCustomSymbol(CustomSymbol customSymbol);
 
     /*
+     * Enable or disable the progress bar. When enabled, the last five custom
+     * symbols are reserved to display the progress bar (CUSTOM_SYMBOL_4 to
+     * CUSTOM_SYMBOL_8) and can't be used. Assignments via setCustomSymbol() to
+     * these keys will be ignored. The given line will be reserved completely
+     * for the progress bar. Any text written to that line will be overwritten
+     * by the progress bar on an update.
+     *
+     * NOTE: Auto scroll will be disabled and the display will be scrolled to
+     * its original position. Don't use scrolling when using the
+     * progressbar, otherwise it won't display correctly.
+     *
+     * NOTE: Text insertion mode will be set to LEFT_TO_RIGHT.
+     *
+     * @param enabled   Enable or disable
+     * */
+    void setProgressBarEnabled(bool enabled);
+
+    /*
+     * Set the row for displaying the progress bar. Defaults to the last row,
+     * according to the given row count in the constructor.
+     *
+     * @param row    Row where the progress bar is displayed
+     * */
+    void setProgressBarRow(uint8_t row);
+
+    /*
+     * Set the progress of the progress bar and draw the update.
+     *
+     * NOTE: This function changes the cursor position. You will have to use
+     * setCursorPosition in order to return to your required cursor position.
+     *
+     * @param progress  Progress in percentage (0.0 to 100.0)
+     * */
+    void setProgress(float progress);
+
+    /*
      * Implement virtual function write(uint8_t value) from Arduino's Print class
      *
      * @param value     Data to write
@@ -318,6 +354,13 @@ private:
     * @param value
     */
     void command(uint8_t value);
+
+    /**
+    * Initialize controller for progress bar feature.
+    *
+    * @param row    Row where the progress bar is displayed
+    */
+    void initProgressBar(uint8_t row);
 
     /**
      * I2C address of device.
@@ -345,12 +388,12 @@ private:
     uint8_t _bitMode;
 
     /**
-     * Current value of DISPLAY_CONTROL
+     * Current value of DISPLAY_CONTROL.
      */
     uint8_t _currDisplayControl;
 
     /**
-     * Current value of ENTRY_MODE_SET
+     * Current value of ENTRY_MODE_SET.
      */
     uint8_t _currEntryModeSet;
 
@@ -358,6 +401,86 @@ private:
      * Object for I2C communication.
      */
     TwoWire *_wire;
+
+    /**
+     * Whether progress bar feature is enabled or not.
+     */
+    bool _progressBarEnabled = false;
+
+    /**
+     * The line where the progress bar should be displayed on.
+     */
+    uint8_t _progressBarRow = 0;
+
+    /**
+     * 1 x 8 bar for progress bar.
+     */
+    byte customCharProgressBar1[8] = {
+            0b10000,
+            0b10000,
+            0b10000,
+            0b10000,
+            0b10000,
+            0b10000,
+            0b10000,
+            0b10000,
+    };
+
+    /**
+     * 2 x 8 bar for progress bar.
+     */
+    byte customCharProgressBar2[8] = {
+            0b11000,
+            0b11000,
+            0b11000,
+            0b11000,
+            0b11000,
+            0b11000,
+            0b11000,
+            0b11000,
+    };
+
+    /**
+     * 3 x 8 bar for progress bar.
+     */
+    byte customCharProgressBar3[8] = {
+            0b11100,
+            0b11100,
+            0b11100,
+            0b11100,
+            0b11100,
+            0b11100,
+            0b11100,
+            0b11100,
+    };
+
+    /**
+     * 4 x 8 bar for progress bar.
+     */
+    byte customCharProgressBar4[8] = {
+            0b11110,
+            0b11110,
+            0b11110,
+            0b11110,
+            0b11110,
+            0b11110,
+            0b11110,
+            0b11110,
+    };
+
+    /**
+     * 5 x 8 bar for progress bar.
+     */
+    byte customCharProgressBar5[8] = {
+            0b11111,
+            0b11111,
+            0b11111,
+            0b11111,
+            0b11111,
+            0b11111,
+            0b11111,
+            0b11111,
+    };
 };
 
 #endif //LIQUID_CRYSTAL_WIRED_H

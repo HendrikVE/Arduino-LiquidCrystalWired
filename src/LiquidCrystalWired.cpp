@@ -205,6 +205,76 @@ void LiquidCrystalWired::printCustomSymbol(CustomSymbol customSymbol) {
     write((byte) customSymbol);
 }
 
+void LiquidCrystalWired::setProgressBarEnabled(bool enabled) {
+
+    _progressBarEnabled = enabled;
+
+    if (enabled) {
+        initProgressBar(_rowCount - 1);
+    }
+}
+
+void LiquidCrystalWired::setProgressBarRow(uint8_t row) {
+    _progressBarRow = row;
+}
+
+void LiquidCrystalWired::setProgress(float progress) {
+
+    if (!_progressBarEnabled) {
+        return;
+    }
+
+    int barCount = _colCount * 5;
+
+    if (progress < 0) {
+        progress = 0;
+    }
+    else if (progress > 100) {
+        progress = 100;
+    }
+
+    int progressBarCount = barCount * (progress / 100);
+
+    int fullBarCount = progressBarCount / 5;
+    int remainderBarCount = progressBarCount % 5;
+
+    setCursorPosition(_progressBarRow, 0);
+
+    for (int i = 0; i < fullBarCount; i++) {
+        printCustomSymbol(CUSTOM_SYMBOL_8);
+    }
+
+    uint8_t blankCount = _colCount - fullBarCount;
+
+    switch (remainderBarCount) {
+
+        case 1:
+            printCustomSymbol(CUSTOM_SYMBOL_4);
+            blankCount--;
+            break;
+
+        case 2:
+            printCustomSymbol(CUSTOM_SYMBOL_5);
+            blankCount--;
+            break;
+
+        case 3:
+            printCustomSymbol(CUSTOM_SYMBOL_6);
+            blankCount--;
+            break;
+
+        case 4:
+            printCustomSymbol(CUSTOM_SYMBOL_7);
+            blankCount--;
+            break;
+    }
+
+    // clear the rest of the line, so it appears as empty part of the progressbar
+    for (int i = 0; i < blankCount; i++) {
+        print(" ");
+    }
+}
+
 inline size_t LiquidCrystalWired::write(uint8_t value) {
 
     uint8_t data[3] = {0x40, value};
@@ -230,4 +300,24 @@ void LiquidCrystalWired::deviceWrite(uint8_t *data, uint8_t len) {
 inline void LiquidCrystalWired::command(uint8_t value) {
     uint8_t data[3] = {0x80, value};
     deviceWrite(data, 2);
+}
+
+void LiquidCrystalWired::initProgressBar(uint8_t row) {
+
+    _progressBarRow = row;
+
+    // if autoscroll was used, the progress bar would be displayed incorrectly
+    setAutoScrollEnabled(false);
+
+    // undo any scrolling
+    returnHome();
+
+    // progress bar should increase from left to right
+    setTextInsertionMode(LEFT_TO_RIGHT);
+
+    setCustomSymbol(CUSTOM_SYMBOL_4, customCharProgressBar1);
+    setCustomSymbol(CUSTOM_SYMBOL_5, customCharProgressBar2);
+    setCustomSymbol(CUSTOM_SYMBOL_6, customCharProgressBar3);
+    setCustomSymbol(CUSTOM_SYMBOL_7, customCharProgressBar4);
+    setCustomSymbol(CUSTOM_SYMBOL_8, customCharProgressBar5);
 }

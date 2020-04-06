@@ -179,4 +179,20 @@ void loop() {
     }
 
     lcd.clear();
+
+    // 9. progress bar
+    lcd.setProgressBarEnabled(true);
+    lcd.setCursorPosition(0, 0);
+    lcd.print("Progress: ");
+
+    for (int j = 0; j <= 100; j++) {
+
+        lcd.setCursorPosition(0, 10);
+        lcd.printf("%d %%", j);
+
+        lcd.setProgress(j);
+        delay(100);
+    }
+    lcd.setProgressBarEnabled(false);
+    lcd.clear();
 }
