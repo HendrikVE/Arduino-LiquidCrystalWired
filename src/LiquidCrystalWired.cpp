@@ -63,7 +63,6 @@ void LiquidCrystalWired::begin(uint8_t deviceAddress, TwoWire *wire) {
     // third go
     command(CMD_FUNCTION_SET | _functionSet);
 
-    // set defaults
     turnOn();
     clear();
     setTextInsertionMode(LEFT_TO_RIGHT);
@@ -136,7 +135,7 @@ void LiquidCrystalWired::setCursorVisible(bool visible) {
 void LiquidCrystalWired::setCursorPosition(uint8_t row, uint8_t col) {
 
     col = ((row == 0) ? (col | 0x80) : (col | 0xc0));
-    uint8_t data[3] = {0x80, col};
+    uint8_t data[3] = { 0x80, col };
 
     deviceWrite(data, 2);
 }
@@ -277,7 +276,7 @@ void LiquidCrystalWired::setProgress(float progress) {
 
 inline size_t LiquidCrystalWired::write(uint8_t value) {
 
-    uint8_t data[3] = {0x40, value};
+    uint8_t data[3] = { 0x40, value };
     deviceWrite(data, 2);
 
     // assume success
