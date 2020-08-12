@@ -188,7 +188,16 @@ void loop() {
     for (int j = 0; j <= 100; j++) {
 
         lcd.setCursorPosition(0, 10);
-        lcd.printf("%d %%", j);
+
+        #ifdef __AVR__
+            char string_rep[4];
+            itoa(j, string_rep, 10);
+            lcd.print(j);
+            lcd.print(" %");
+        #else
+            // on an esp32 you can use printf instead
+            lcd.printf("%d %%", j);
+        #endif
 
         lcd.setProgress(j);
         delay(100);
