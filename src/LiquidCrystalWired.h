@@ -189,7 +189,7 @@ public:
      * @param deviceAddress I2C address of the used display controller
      * @param wire          Reference to TwoWire for I2C communication
      */
-    void begin(uint16_t deviceAddress, TwoWire *wire);
+    void begin(uint8_t deviceAddress, TwoWire *wire);
 
     /**
      * Turn on the display.
@@ -365,7 +365,7 @@ private:
     /**
      * I2C address of device.
      */
-    uint16_t _deviceAddres;
+    uint8_t _deviceAddress;
 
     /**
      * Number of rows of the connected display.

@@ -20,11 +20,11 @@ LiquidCrystalWired::LiquidCrystalWired(
     _bitMode = bitMode;
 }
 
-void LiquidCrystalWired::begin(uint16_t deviceAddress, TwoWire *wire) {
+void LiquidCrystalWired::begin(uint8_t deviceAddress, TwoWire *wire) {
 
     uint8_t _functionSet = 0;
 
-    _deviceAddres = deviceAddress;
+    _deviceAddress = deviceAddress;
 
     _wire = wire;
     _wire->begin();
@@ -287,7 +287,7 @@ inline size_t LiquidCrystalWired::write(uint8_t value) {
 /****************************** PRIVATE METHODS *******************************/
 void LiquidCrystalWired::deviceWrite(uint8_t *data, uint8_t len) {
 
-    Wire.beginTransmission(_deviceAddres);
+    Wire.beginTransmission(_deviceAddress);
 
     for (int i = 0; i < len; i++) {
         Wire.write(data[i]);
