@@ -287,14 +287,14 @@ inline size_t LiquidCrystalWired::write(uint8_t value) {
 /****************************** PRIVATE METHODS *******************************/
 void LiquidCrystalWired::deviceWrite(uint8_t *data, uint8_t len) {
 
-    Wire.beginTransmission(_deviceAddress);
+    _wire->beginTransmission(_deviceAddress);
 
     for (int i = 0; i < len; i++) {
-        Wire.write(data[i]);
+        _wire->write(data[i]);
         delay(5);
     }
 
-    Wire.endTransmission();
+    _wire->endTransmission();
 }
 
 inline void LiquidCrystalWired::command(uint8_t value) {
