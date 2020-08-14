@@ -6,6 +6,32 @@ but should work for every other board and HD44780 based controller as well.
 The API is incompatible to existing APIs like LiquidCrystal, because I don't
 like the API of them. In fact it was one of the reasons to write my own version.
 
+## Installation
+
+### Arduino IDE
+
+#### Installation using the Library Manager (IDE 1.6.2 and later)
+In the Arduino IDE, simply click on:\
+`[Sketch] -> Include Library -> Manage Libraries`\
+or\
+`[Tools] -> Manage Libraries`\
+Then search for `LiquidCrystalWired` to locate the library and install it.
+
+#### Installation prior to IDE 1.6.2
+Because the Library Manager is not available on versions prior to 1.6.2, you
+would have to clone this repository or download the .zip file to install the
+library manually. This is strongly discouraged as it can lead to several
+problems. You should really do yourself a favour and update your Arduino IDE to
+the latest version and install the library using the Library Manager instead.
+
+For generic information about Arduino libraries and how to install them consult
+the Arduino Libraries page: https://www.arduino.cc/en/Guide/Libraries
+
+### Other platforms
+There isn't a sophisticated installation support for other platforms yet (which
+doesn't mean that the library won't work). As long as Arduino libraries are
+supported, simply clone this repository according to the platforms guidelines.
+
 ## API overview:
 ```cpp
     /**
