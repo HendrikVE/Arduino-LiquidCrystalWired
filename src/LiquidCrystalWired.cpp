@@ -198,6 +198,8 @@ void LiquidCrystalWired::setCustomSymbol(
         data[i] = charmap[i - 1];
     }
     deviceWrite(data, 9);
+
+    command(CMD_SET_DDRAM_ADDR);
 }
 
 void LiquidCrystalWired::printCustomSymbol(CustomSymbol customSymbol) {
