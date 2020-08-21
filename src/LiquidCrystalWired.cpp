@@ -194,8 +194,8 @@ void LiquidCrystalWired::setCustomSymbol(
 
     uint8_t data[9];
     data[0] = 0x40;
-    for (int i = 0; i < 8; i++) {
-        data[i + 1] = charmap[i];
+    for (int i = 1; i < 9; i++) {
+        data[i] = charmap[i - 1];
     }
     deviceWrite(data, 9);
 }
