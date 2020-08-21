@@ -340,20 +340,20 @@ public:
 private:
 
     /**
-    * Write data to the device.
-    *
-    * @param data   Data to write
-    * @param len    Length of the data
-    */
-    void deviceWrite(uint8_t *data, uint8_t len);
-
-    /**
     * Write an instruction code with it's arguments (modified bits) to the
     * device.
     *
     * @param value
     */
     void command(uint8_t value);
+
+    /**
+    * Write data to the device.
+    *
+    * @param data   Data to write
+    * @param len    Length of the data
+    */
+    void deviceWrite(uint8_t *data, uint8_t len);
 
     /**
     * Initialize controller for progress bar feature.

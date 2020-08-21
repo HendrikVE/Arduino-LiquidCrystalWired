@@ -58,7 +58,7 @@ void LiquidCrystalWired::begin(uint8_t deviceAddress, TwoWire *wire) {
 
     // second try
     command(CMD_FUNCTION_SET | _functionSet);
-    delay(5);
+    delayMicroseconds(500);
 
     // third go
     command(CMD_FUNCTION_SET | _functionSet);
@@ -84,16 +84,16 @@ void LiquidCrystalWired::clear() {
 
     command(CMD_CLEAR_DISPLAY);
 
-    // above command takes a long time!
-    delayMicroseconds(2000);
+    // max execution time of 1.52 ms
+    delayMicroseconds(1700);
 }
 
 void LiquidCrystalWired::returnHome() {
 
     command(CMD_RETURN_HOME);
 
-    // above command takes a long time!
-    delayMicroseconds(2000);
+    // max execution time of 1.52 ms
+    delayMicroseconds(1700);
 }
 
 void LiquidCrystalWired::setAutoScrollEnabled(bool enabled) {
@@ -284,6 +284,14 @@ inline size_t LiquidCrystalWired::write(uint8_t value) {
 }
 
 /****************************** PRIVATE METHODS *******************************/
+inline void LiquidCrystalWired::command(uint8_t value) {
+    uint8_t data[3] = { 0x80, value };
+    deviceWrite(data, 2);
+
+    // max execution time for most commands of 37 µs
+    delayMicroseconds(50);
+}
+
 void LiquidCrystalWired::deviceWrite(uint8_t *data, uint8_t len) {
 
     _wire->beginTransmission(_deviceAddress);
@@ -294,11 +302,6 @@ void LiquidCrystalWired::deviceWrite(uint8_t *data, uint8_t len) {
     }
 
     _wire->endTransmission();
-}
-
-inline void LiquidCrystalWired::command(uint8_t value) {
-    uint8_t data[3] = {0x80, value};
-    deviceWrite(data, 2);
 }
 
 void LiquidCrystalWired::initProgressBar(uint8_t row) {
