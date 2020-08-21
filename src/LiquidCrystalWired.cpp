@@ -298,10 +298,7 @@ void LiquidCrystalWired::deviceWrite(uint8_t *data, uint8_t len) {
 
     _wire->beginTransmission(_deviceAddress);
 
-    for (int i = 0; i < len; i++) {
-        _wire->write(data[i]);
-        delay(5);
-    }
+    _wire->write(data, len);
 
     _wire->endTransmission();
 }
