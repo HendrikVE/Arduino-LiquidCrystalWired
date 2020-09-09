@@ -191,10 +191,9 @@ void loop() {
         lcd.setCursorPosition(0, 10);
 
         #ifdef __AVR__
-            char string_rep[4];
-            itoa(j, string_rep, 10);
-            lcd.print(j);
-            lcd.print(" %");
+            char string_rep[6];
+            sprintf(string_rep, "%d %%", j);
+            lcd.print(string_rep);
         #else
             // on an esp32 you can use printf instead
             lcd.printf("%d %%", j);
