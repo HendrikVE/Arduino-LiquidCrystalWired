@@ -1,7 +1,8 @@
-# Driver for HD44780 based controllers for Arduino
+# Driver for AiP31068 based controllers for Arduino
 
 This library was developed and tested on an esp32 with a AiP31068L controller,
-but should work for every other board and HD44780 based controller as well.
+but should work for every other board as well. The AiP31068L is an intermediate
+controller making it possible to speak to a HD44780 compatible display via I2C.
 
 The API is incompatible to existing APIs like LiquidCrystal, because I don't
 like the API of them. In fact it was one of the reasons to write my own version.

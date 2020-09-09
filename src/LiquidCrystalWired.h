@@ -11,7 +11,7 @@
 
 #include <Wire.h>
 
-// Commands (page 24-25, table 6)
+// Commands (page 18, table 3)
 
 /**
  * Clears entire display and sets cursor to position (0, 0).
@@ -59,7 +59,7 @@
 
 
 
-// Bits for CMD_ENTRY_MODE_SET (page 24-25, table 6)
+// Bits for CMD_ENTRY_MODE_SET (page 16, section 3)
 
 /**
  * 0 = Decrement cursor after insertion
@@ -75,7 +75,7 @@
 
 
 
-// Bits for CMD_DISPLAY_CONTROL (page 24-25, table 6)
+// Bits for CMD_DISPLAY_CONTROL (page 16, section 4)
 
 /**
  * 0 = Display off
@@ -97,7 +97,7 @@
 
 
 
-// Bits for CMD_CURSOR_DISPLAY_SHIFT (page 24-25, table 6)
+// Bits for CMD_CURSOR_DISPLAY_SHIFT (page 17, section 5)
 
 /**
  * 0 = Shift the cursor position
@@ -113,7 +113,7 @@
 
 
 
-// Bits for CMD_FUNCTION_SET (page 24-25, table 6)
+// Bits for CMD_FUNCTION_SET (page 17, section 6)
 
 /**
  * 0 = 4 bit interface data length
@@ -372,7 +372,8 @@ private:
     /**
      * Write a command or data byte to the device.
      *
-     * @param value Byte to write
+     * @param data_byte     Byte to write
+     * @param is_cmd        Whether byte should be interpreted as data or command
      */
     int write(uint8_t data_byte, bool is_cmd);
 

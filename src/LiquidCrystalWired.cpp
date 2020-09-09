@@ -44,13 +44,8 @@ void LiquidCrystalWired::begin(uint8_t deviceAddress, TwoWire *wire) {
         _functionSet |= (1 << BIT_FUNCTION_SET_FONTSIZE);
     }
 
-    // SEE PAGE 45/46 FOR INITIALIZATION SPECIFICATION!
-    // according to datasheet, we need at least 40ms after power rises above 2.7V
-    // before sending commands. Arduino can turn on way before 4.5V so we'll wait 50 ms
+    // begin of initialization sequence (page 20 in the datasheet)
     delay(50);
-
-    // this is according to the hitachi HD44780 datasheet
-    // page 45 figure 23
 
     // Send function set command sequence
     command(CMD_FUNCTION_SET | _functionSet);
