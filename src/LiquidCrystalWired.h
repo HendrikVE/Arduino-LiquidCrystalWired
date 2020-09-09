@@ -135,6 +135,22 @@
 
 
 
+// Bits for constrol byte (page 12)
+
+/**
+ * @brief 0 = Last control byte
+ *        1 = Another control byte follows data byte
+ */
+#define BIT_CONTROL_BYTE_CO 7
+
+/**
+ * @brief 0 = data byte interpreted as command
+ *        1 = data byte interpreted as data
+ */
+#define BIT_CONTROL_BYTE_RS 6
+
+
+
 /**
  * Keys for custom symbols.
  */
@@ -340,26 +356,39 @@ public:
 private:
 
     /**
-    * Write an instruction code with it's arguments (modified bits) to the
-    * device.
-    *
-    * @param value
-    */
-    void command(uint8_t value);
+     * Write a data byte to the device.
+     *
+     * @param value Data byte to write
+     */
+    int data(uint8_t value);
 
     /**
-    * Write data to the device.
-    *
-    * @param data   Data to write
-    * @param len    Length of the data
-    */
-    void deviceWrite(uint8_t *data, uint8_t len);
+     * Write a command byte with it's arguments (modified bits) to the device.
+     *
+     * @param value Command byte to write
+     */
+    int command(uint8_t value);
 
     /**
-    * Initialize controller for progress bar feature.
-    *
-    * @param row    Row where the progress bar is displayed
-    */
+     * Write a command or data byte to the device.
+     *
+     * @param value Byte to write
+     */
+    int write(uint8_t data_byte, bool is_cmd);
+
+    /**
+     * Write data to the device.
+     *
+     * @param data   Data to write
+     * @param len    Length of the data
+     */
+    int deviceWrite(uint8_t *data, uint8_t len);
+
+    /**
+     * Initialize controller for progress bar feature.
+     *
+     * @param row    Row where the progress bar is displayed
+     */
     void initProgressBar(uint8_t row);
 
     /**

@@ -192,18 +192,17 @@ void LiquidCrystalWired::setCustomSymbol(
     uint8_t location = customSymbol;
     command(CMD_SET_CGRAM_ADDR | (location << 3));
 
-    uint8_t data[9];
-    data[0] = 0x40;
-    for (int i = 1; i < 9; i++) {
-        data[i] = charmap[i - 1];
+    int row_count = _fontSize == FONT_SIZE_5x8 ? 8 : 10;
+
+    for (int i = 0; i < row_count; i++) {
+        data(charmap[i]);
     }
-    deviceWrite(data, 9);
 
     command(CMD_SET_DDRAM_ADDR);
 }
 
 void LiquidCrystalWired::printCustomSymbol(CustomSymbol customSymbol) {
-    write((byte) customSymbol);
+    data((byte) customSymbol);
 }
 
 void LiquidCrystalWired::setProgressBarEnabled(bool enabled) {
@@ -278,29 +277,51 @@ void LiquidCrystalWired::setProgress(float progress) {
 
 inline size_t LiquidCrystalWired::write(uint8_t value) {
 
-    uint8_t data[3] = { 0x40, value };
-    deviceWrite(data, 2);
+    int rc = data(value);
 
-    // assume success
-    return 1;
+    return rc == 0 ? 1 : 0;
 }
 
 /****************************** PRIVATE METHODS *******************************/
-inline void LiquidCrystalWired::command(uint8_t value) {
-    uint8_t data[3] = { 0x80, value };
-    deviceWrite(data, 2);
+int LiquidCrystalWired::data(uint8_t value) {
 
-    // max execution time for most commands of 37 µs
+    int rc = write(value, false);
+
+    // execution time for writing to RAM is given as 43 µs
     delayMicroseconds(50);
+
+    return rc;
 }
 
-void LiquidCrystalWired::deviceWrite(uint8_t *data, uint8_t len) {
+int LiquidCrystalWired::command(uint8_t value) {
+
+    int rc = write(value, true);
+
+    // execution time for most commands is given as 37 µs
+    delayMicroseconds(50);
+
+    return rc;
+}
+
+int LiquidCrystalWired::write(uint8_t data_byte, bool is_cmd) {
+
+    uint8_t control_byte = 0;
+    if (!is_cmd) {
+        control_byte |= (1 << BIT_CONTROL_BYTE_RS);
+    }
+
+    uint8_t data[] = { control_byte, data_byte };
+
+    return deviceWrite(data, 2);
+}
+
+int LiquidCrystalWired::deviceWrite(uint8_t *data, uint8_t len) {
 
     _wire->beginTransmission(_deviceAddress);
 
     _wire->write(data, len);
 
-    _wire->endTransmission();
+    return _wire->endTransmission();
 }
 
 void LiquidCrystalWired::initProgressBar(uint8_t row) {
