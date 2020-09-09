@@ -63,7 +63,7 @@ void LiquidCrystalWired::begin(uint8_t deviceAddress, TwoWire *wire) {
     // third go
     command(CMD_FUNCTION_SET | _functionSet);
 
-    turnOn();
+    turnOff();
     clear();
     setTextInsertionMode(LEFT_TO_RIGHT);
 }

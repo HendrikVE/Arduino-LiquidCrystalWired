@@ -32,6 +32,7 @@ void setup() {
     Serial.begin(115200);
     lcd.begin(LCD_ADDRESS, &Wire);
 
+    lcd.turnOn();
     lcd.setCustomSymbol(CUSTOM_SYMBOL_1, customCharHeart);
 }
 
