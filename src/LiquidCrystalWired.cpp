@@ -37,6 +37,12 @@ void LiquidCrystalWired::begin(uint8_t deviceAddress, TwoWire *wire) {
     // configure line count
     if (_rowCount >= 2) {
         _functionSet |= (1 << BIT_FUNCTION_SET_LINECOUNT);
+
+        if (_rowCount > 4) {
+            // displays with more than 4 lines are not supported
+            // (see setCursorPosition)
+            _rowCount = 4;
+        }
     }
 
     // configure character size
@@ -129,10 +135,17 @@ void LiquidCrystalWired::setCursorVisible(bool visible) {
 
 void LiquidCrystalWired::setCursorPosition(uint8_t row, uint8_t col) {
 
-    col = ((row == 0) ? (col | 0x80) : (col | 0xc0));
-    uint8_t data[3] = { 0x80, col };
+    uint8_t row_offsets[4];
+    row_offsets[0] = 0x00;
+    row_offsets[1] = 0x40;
+    row_offsets[2] = 0x00 + _colCount;
+    row_offsets[3] = 0x40 + _colCount;
 
-    deviceWrite(data, 2);
+    if (row >= _rowCount) {
+        row = _rowCount - 1;
+    }
+
+    command(CMD_SET_DDRAM_ADDR | (col | row_offsets[row]));
 }
 
 void LiquidCrystalWired::setTextInsertionMode(TextInsertionMode mode) {
